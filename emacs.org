@@ -44,7 +44,8 @@
 
    #+name: look-and-feel
    #+BEGIN_SRC emacs-lisp
-     (load-theme 'leuven)
+     ;(load-theme 'light-blue)
+     (load-theme 'wombat)
    #+END_SRC
 
 ** Font
@@ -91,33 +92,16 @@
        (menu-bar-mode -1))
    #+END_SRC
 
-** Fringe decorations
-
-   [[http://www.emacswiki.org/emacs/TheFringe][The fringe]] is the vertical region at the right and left of the
-   buffer. Emacs lets you customize it of course.
-
-   Here I set up git diffs and buffer position in the fringe.
-
-   #+NAME: look-and-feel
-   #+BEGIN_SRC emacs-lisp
-     (when (window-system)
-       (require 'git-gutter-fringe)
-       (global-git-gutter-mode +1))
-
-     (setq-default indicate-buffer-boundaries 'left)
-     (setq-default indicate-empty-lines +1)
-   #+END_SRC
-
 ** Mode line
 
    I'm using smart mode line to clean up the modeline display a little.
 
    #+NAME: look-and-feel
    #+BEGIN_SRC emacs-lisp
-     (sml/setup)
-     (sml/apply-theme 'dark)
-     (setq sml/shorten-directory t)
-     (setq sml/shorten-modes t)
+     ;(sml/setup)
+     ;(sml/apply-theme 'respectful)
+     ;(setq sml/shorten-directory t)
+     ;(setq sml/shorten-modes t)
    #+END_SRC
 
 ** Scrolling behavior
@@ -194,49 +178,9 @@
   #+name: formatting
   #+BEGIN_SRC emacs-lisp
     (setq-default indent-tabs-mode nil)
-
-    (defun my/clean-buffer-formatting ()
-      "Indent and clean up the buffer"
-      (interactive)
-      (indent-region (point-min) (point-max))
-      (whitespace-cleanup))
-
-    (global-set-key "\C-cn" 'my/clean-buffer-formatting)
-
-    (defun my/general-formatting-hooks ()
-      (setq show-trailing-whitespace 't))
-
-    (dolist (mode-hook (my/normal-mode-hooks))
-      (add-hook mode-hook 'my/general-formatting-hooks))
   #+END_SRC
 
-** Text (non-code) formatting
-
-   For writing text, I prefer Emacs to do line wrapping for me. Also,
-   superfluous white-space should be shown.
-
-   #+name: formatting
-   #+BEGIN_SRC emacs-lisp
-     (defun my/text-formatting-hooks ()
-       (my/turn-on 'auto-fill)) ; turn on automatic hard line wraps
-
-     (add-hook 'text-mode-hook
-               'my/text-formatting-hooks)
-   #+END_SRC
-
 * Programming
-** General programming
-
-   I want to use pretty-symbols mode for all programming.
-
-   #+name: programming-setup
-   #+BEGIN_SRC emacs-lisp
-     (defun my/prog-mode-hooks ()
-       (my/turn-on 'pretty-symbols))
-
-     (add-hook 'prog-mode-hook
-               'my/prog-mode-hooks)
-   #+END_SRC
 
 ** Pair programming
 
@@ -277,98 +221,6 @@
      (global-set-key "\C-c\M-p" 'my/global-pair-programming-mode)
    #+END_SRC
 
-** Lisps
-
-   For lisp code, I want ParEdit plus general highlighting etc.
-
-   #+NAME: programming-setup
-   #+BEGIN_SRC emacs-lisp
-     (setq my/lisps
-           '(emacs-lisp lisp clojure))
-
-     (defun my/general-lisp-hooks ()
-       (my/turn-on 'paredit
-                   'rainbow-delimiters
-                   'highlight-parentheses))
-
-     (dolist (mode (mapcar 'my/->mode-hook my/lisps))
-       (add-hook mode
-                 'my/general-lisp-hooks))
-   #+END_SRC
-** Emacs Lisp
-   #+NAME: programming-setup
-   #+BEGIN_SRC emacs-lisp
-     (defun my/emacs-lisp-hooks ()
-       (my/turn-on 'eldoc-mode))
-
-     (add-hook 'emacs-lisp-mode-hook 'my/emacs-lisp-hooks)
-   #+END_SRC
-
-** Clojure
-
-   I'm using [[https://github.com/clojure-emacs/cider/commits/master][CIDER]] (formerly ~nrepl.el~) for clojure source/repl
-   interaction.
-
-   #+NAME: programming-setup
-   #+BEGIN_SRC emacs-lisp
-     (defun my/cider-mode-hooks ()
-       "Clojure specific setup code that should only be run when we
-       have a CIDER REPL connection"
-       (cider-turn-on-eldoc-mode))
-
-     (add-hook 'cider-mode-hook
-               'my/cider-mode-hooks)
-   #+END_SRC
-   
-   Clojure-specific enhancements to lisp config.
-
-   #+NAME: programming-setup
-   #+BEGIN_SRC emacs-lisp
-     (defun my/clojure-mode-hooks ()
-       (my/turn-on 'subword))
-
-     (add-hook 'clojure-mode-hook
-               'my/clojure-mode-hooks)
-   #+END_SRC
-
-   I treat the REPL mode specially, since certain hooks that work in
-   ~clojure-mode~ won't make sense or break functionality in
-   ~cider-repl-mode~.
-
-   #+NAME: programming-setup
-   #+BEGIN_SRC emacs-lisp
-          (defun my/cider-repl-mode-hooks ()
-            (my/turn-on 'paredit
-                        'rainbow-delimiters
-                        'highlight-parentheses
-                        'subword))
-
-          (add-hook 'cider-repl-mode-hook
-                    'my/cider-repl-mode-hooks)
-   #+END_SRC
-
-   
-
-** Ruby
-   Tell Emacs rake files are Ruby files.
-
-   #+name: programming-setup
-   #+BEGIN_SRC emacs-lisp
-     (dolist (exp '("Rakefile\\'" "\\.rake\\'"))
-       (add-to-list 'auto-mode-alist
-                    (cons exp 'ruby-mode)))
-
-   #+END_SRC
-
-   Having some kind of navigation support for rails projects can be
-   very handy. I've contributed a few things to [[https://github.com/remvee/emacs-rails][Emacs-Rails mode]] in
-   the past, but for the moment, I'm going to try the slightly more
-   light-weight Rinari mode.
-
-   #+NAME: programming-setup
-   #+BEGIN_SRC emacs-lisp
-     (global-rinari-mode +1)
-   #+END_SRC
 ** Perl
    I still occasionally need to work on Perl code, so I have a few
    basic settings to make that reasonably painless.
@@ -376,11 +228,7 @@
    #+name: programming-setup
    #+BEGIN_SRC emacs-lisp
      (fset 'perl-mode 'cperl-mode) ;; force cperl mode
-
-     (defun my/cperl-mode-hooks ()
-       (my/turn-on flymake-mode))
-
-     (add-hook 'cperl-mode-hook 'my/cperl-mode-hooks)
+     (add-hook 'cperl-mode-hook (lambda (flymake-mode)))
    #+END_SRC
 ** Javascript
 
@@ -401,9 +249,7 @@
      (add-to-list 'auto-mode-alist '("\\.json\\'\\|\\.jshintrc\\'" . js-mode))
    #+END_SRC
 
-
 ** Compilation mode improvements
-
 *** ANSI Colors
 
     See http://stackoverflow.com/questions/3072648/cucumbers-ansi-colors-messing-up-emacs-compilation-buffer
@@ -424,80 +270,16 @@
     #+BEGIN_SRC emacs-lisp
      (setq compilation-scroll-output t)
     #+END_SRC
-* TODO Auto Complete
-
-  Getting auto completion to work right tends to be a messy process of
-  trial and error, though in recent years the situation has improved,
-  with =auto-complete= mode being more or less the defacto standard.
-
-  - Fuzzy matching isn't working the way I expected, though. Need to
-    work on that.
-
-  #+NAME: auto-complete
-  #+BEGIN_SRC emacs-lisp
-    ;; (require 'fuzzy)
-    ;; (require 'auto-complete)
-    ;; (setq ac-auto-show-menu t
-    ;;       ac-quick-help-delay 0.5
-    ;;       ac-use-fuzzy t)
-    ;; (global-auto-complete-mode +1)
-  #+END_SRC
-
-  Company mode seems to be better supported by CIDER, so let's try
-  that for now.
-
-  #+NAME: auto-complete
-  #+BEGIN_SRC emacs-lisp
-    (require 'company)
-    (add-hook 'after-init-hook 'global-company-mode)
-  #+END_SRC
-
-* Global key bindings
-
-  As far as reasonable, I try to keep my custom key bindings within
-  the "official" restraints. Specifically, I want my global key
-  bindings to start with =C-c [lower case letter]=.
-
-  #+name: global-keys
-  #+BEGIN_SRC emacs-lisp
-    (global-set-key "\C-cg" 'magit-status)
-    (global-set-key "\C-cq" 'delete-indentation)
-  #+END_SRC
-
-* Global navigation
-
-  I like ~ido~ and ~smex~ for narrowing down files, commands, buffers
-  etc.
-
-  #+name: global-navigation
-  #+BEGIN_SRC emacs-lisp
-    (defun my/edit-emacs-configuration ()
-      (interactive)
-      (find-file "~/.emacs.d/emacs.org"))
-
-    (global-set-key "\C-ce" 'my/edit-emacs-configuration)
-
-    (setq ido-enable-flex-matching t)
-    (ido-mode +1)
-    (ido-yes-or-no-mode +1)
-
-    (global-set-key "\M-x" 'smex)
-  #+END_SRC
-
-** Projects
-
-   Projectile is useful. Especially, ~projectile-replace~ and
-   ~projectile-find-file~.
-
-   Projectile commands are bound with the default ~C-c p~ prefix. So I
-   can type ~C-c p C-h~ to list all of them.
-
-  #+name: global-navigation
-  #+BEGIN_SRC emacs-lisp
-    (projectile-global-mode +1)
-  #+END_SRC
 
 * Org Mode
+** Org-Trello
+
+   #+name: org-config
+   #+BEGIN_SRC emacs-lisp
+     ;(require 'org-trello)
+     ;(add-hook 'org-mode-hook 'org-trello-mode)
+   #+END_SRC
+
 ** MobileOrg
    Use Dropbox for syncing my agenda files with my Android
    phone. Worry about the security implications later.
@@ -536,26 +318,10 @@
 
    Make custom markers for todo items:
 
-   - TODO :: something that needs to be done at some point. If it
-             has a date, it should be done on that day but it may be
-             moved.
-
-   - PENDING :: something that's awaiting feedback from someone
-                else. If it has a date, it needs followup if there
-                hasn't been any feedback at that time.
-
-   - MEETING :: a scheduled meeting and cannot easily be rescheduled.
-
-   - DONE :: done.
-
-   - CANCELED :: can be ignored. May include a note on why it's been
-                 cancelled.
-
    #+name: org-config
    #+BEGIN_SRC emacs-lisp
-     (setq org-todo-keywords
-           '((sequence "TODO(t)" "PENDING(p)" "MEETING(m)" "|" "DONE(d)" "CANCELED(c)")))
-
+     ; All these are needed for org-toodledo: TODO DELEGATED WAITING SOMEDAY CANCELED REFERENCE
+     (setq org-todo-keywords '((sequence "TODO(t)" "DELEGATED" "WAITING" "SOMEDAY" "PENDING(p)" "|" "REFERENCE" "CANCELED" "DONE(d)")))
    #+END_SRC
 
    Automatically mark todo items with todo subitems as DONE when all
@@ -584,28 +350,24 @@
    #+END_SRC
 
 ** Org-Babel
-
 *** Fontifying source blocks
 
-    Enable yntax highlighting in src blocks.
+    Enable syntax highlighting in src blocks.
     #+name: org-config
     #+BEGIN_SRC emacs-lisp
       (setq-default org-src-fontify-natively t)
     #+END_SRC
 
-    Use the =minted= package for syntax highlighting source blocks in
-    LaTeX / PDF exports. [[http://joat-programmer.blogspot.nl/2013/07/org-mode-version-8-and-pdf-export-with.html][Configuration copied from a blog post
-    by Florian Bergmann.]]
+    Use the vanilla syntax highlighting (the =minted= package has too much baggage) for
+    LaTeX / PDF exports.
 
     #+name: org-config
     #+BEGIN_SRC emacs-lisp
      ;; Include the latex-exporter
      (require 'ox-latex)
      ;; Add minted to the defaults packages to include when exporting.
-     (add-to-list 'org-latex-packages-alist '("" "minted"))
-     ;; Tell the latex export to use the minted package for source
-     ;; code coloration.
-     (setq org-latex-listings 'minted)
+     (add-to-list 'org-latex-packages-alist '("" "listings"))
+     (add-to-list 'org-latex-packages-alist '("" "color"))
      ;; Let the exporter use the -shell-escape option to let latex
      ;; execute external programs.
      ;; This obviously and can be dangerous to activate!
@@ -613,7 +375,8 @@
      ;; I use pdflatex instead of xelatex because that seems to work
      ;; much better with utf-8 files
      (setq org-latex-pdf-process
-           '("pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+           '("echo o is [%o], f is [%f]"
+             "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
              "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
              "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
 
@@ -657,6 +420,7 @@
    allowed. I collect all languages here, then enable all of them at
    the end of the section.
 
+   ":noweb no-export" means expand references before eval or tangle, but not before export
    #+name: org-config :noweb no-export
    #+BEGIN_SRC emacs-lisp
      (defvar my/org-babel-evaluated-languages
@@ -699,12 +463,16 @@
      (add-to-list 'my/org-babel-evaluated-languages 'plantuml)
    #+END_SRC
 
-* Other libraries
-  Loading ~dired+~ improves ~dired~.
-  #+name: libraries
+* Toodledo
+
+  #+name: org-toodledo-config
   #+BEGIN_SRC emacs-lisp
-    (require 'dired+)
+    (require 'org-toodledo)
+    (setq org-toodledo-userid   "td4dd6c59082799")
+    (setq org-toodledo-password "web66web66")
+    (setq org-toodledo-file     "~/.emacs.d/toodledo.org")
   #+END_SRC
+
 * Configuration file layout
 
   Here I define the emacs.el file that gets generated by the code in
@@ -725,9 +493,10 @@
     <<formatting>>
     <<programming-setup>>
     <<auto-complete>>
-    <<global-keys>>
+    ; global-keys
     <<global-navigation>>
     <<org-config>>
+    ; org-toodledo-config
     <<libraries>>
     <<startup>>
   #+END_SRC
@@ -736,49 +505,6 @@
 
   This section defines some functionality used elsewhere in this
   configuration.
-
-** Hooks and modes
-
-   #+name: tools
-   #+BEGIN_SRC emacs-lisp
-     (defun my/->string (str)
-       (cond
-        ((stringp str) str)
-        ((symbolp str) (symbol-name str))))
-
-     (defun my/->mode-hook (name)
-       "Turn mode name into hook symbol"
-       (intern (replace-regexp-in-string "\\(-mode\\)?\\(-hook\\)?$"
-                                         "-mode-hook"
-                                         (my/->string name))))
-
-     (defun my/->mode (name)
-       "Turn mode name into mode symbol"
-       (intern (replace-regexp-in-string "\\(-mode\\)?$"
-                                         "-mode"
-                                         (my/->string name))))
-
-     (defun my/set-modes (arg mode-list)
-       (dolist (m mode-list)
-         (funcall (my/->mode m) arg)))
-
-     (defun my/turn-on (&rest mode-list)
-       "Turn on the given (minor) modes."
-       (my/set-modes +1 mode-list))
-
-     (defvar my/normal-base-modes
-       (mapcar 'my/->mode '(text prog))
-       "The list of modes that are considered base modes for
-       programming and text editing. In an ideal world, this should
-       just be text-mode and prog-mode, however, some modes that
-       should derive from prog-mode derive from fundamental-mode
-       instead. They are added here.")
-
-     (defun my/normal-mode-hooks ()
-       "Returns the mode-hooks for `my/normal-base-modes`"
-       (mapcar 'my/->mode-hook my/normal-base-modes))
-
-   #+END_SRC
 
 * Environment
 
@@ -800,7 +526,6 @@
     (add-to-list 'load-path "~/.emacs.d/ext")
   #+END_SRC
 
-
 * Options set using the customize interface
 
   By default, Emacs saves the options you set via the `customize-*`
@@ -809,6 +534,7 @@
 
   #+name: customize-config
   #+BEGIN_SRC emacs-lisp
-    (setq custom-file "~/.emacs.d/custom.el")
-    (load custom-file)
+    (setq custom-file "~/.emacs.d/custom.el") ; KDS
+    (load custom-file)                        ; KDS
   #+END_SRC
+
